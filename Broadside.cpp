@@ -1,5 +1,5 @@
 
-#include "libcgutils/Obj3D/Obj3D.h"
+#include <cg/new/Obj3D.hpp>
 
 /*
  * Hier entsteht das Spieleprojekt für das Fach Computer Graphics

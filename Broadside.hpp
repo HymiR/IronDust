@@ -13,7 +13,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <cmath>
-#include "libcgutils/Obj3D/Obj3D.h"
+#include <cg/new/Obj3D.hpp>
 #include <GLFW/glfw3.h>
 
 #endif	/* BROADSIDE_HPP */
