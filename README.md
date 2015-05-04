@@ -19,5 +19,5 @@ Some things to consider about exporting .obj files if we use this loader:
  - Include UVs (don't fuck with this one)
  - Triangulate Faces (if you don't use this, Blender will export Quads and your model will look like swiss cheese)
 
- * Requirements
- - needs the gerfried branch of libcg on github, not the master branch!!
+* Requirements
+- needs the gerfried branch of libcg on github, not the master branch!!
