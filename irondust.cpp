@@ -1,5 +1,5 @@
 
-#include <cg/new/Obj3D.hpp>
+#include <cg/ger/Obj3D.hpp>
 
 /*
  * Hier entsteht das Spieleprojekt für das Fach Computer Graphics
@@ -12,11 +12,13 @@
  * Dieser Text sollte später ersetzt/umgeschrieben werden und der test ordner
  * kann dann auch entfernt werden
  */
-#include "Broadside.hpp"
+#include "irondust.hpp"
 
 #ifndef __cplusplus
 #define __cplusplus
 #endif
+
+using namespace cg::ger;
 
 GLFWwindow* window;
 int gwidth = 640;
@@ -282,7 +284,7 @@ void initialise() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	  
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( gwidth, gheight, "Broadside", NULL, NULL);
+	window = glfwCreateWindow( gwidth, gheight, "Iron Dust", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window.\n" );
 		glfwTerminate();

@@ -3,9 +3,9 @@ CC=g++
 LDFLAGS=-lGL -lGLU -lglfw -lboost_system -lboost_filesystem -lcg
 CFLAGS=-g -O3 -pipe -Wall -fomit-frame-pointer
 CXXFLAGS=$(CFLAGS)
-APPNAME=Broadside
+APPNAME=irondust
 BUILDNAME=$(APPNAME)
-SRCS=Broadside.cpp
+SRCS=irondust.cpp
 OBJDIR=.
 
 all: $(SRCS) $(APPNAME)

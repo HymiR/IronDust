@@ -1,19 +1,19 @@
 /* 
- * File:   Broadside.hpp
+ * File:   irondust.hpp
  * Author: vidar
  *
  * Created on 13. Juni 2014, 13:30
  */
 
-#ifndef BROADSIDE_HPP
-#define	BROADSIDE_HPP
+#ifndef IRONDUST_HPP
+#define	IRONDUST_HPP
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
 #include <cmath>
-#include <cg/new/Obj3D.hpp>
+#include <cg/ger/Obj3D.hpp>
 #include <GLFW/glfw3.h>
 
-#endif	/* BROADSIDE_HPP */
+#endif	/* IRONDUST_HPP */
