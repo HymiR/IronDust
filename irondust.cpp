@@ -38,8 +38,7 @@ using namespace cg::oogl;
 static const float PI = static_cast<float>(M_PI);
 
 static GLFWwindow* window;
-static int gwidth = 840;
-static int gheight = 480;
+static glm::ivec2 size(840, 480);
 
 // Initial position vectors
 static glm::vec3 position = glm::vec3( 0.0, 0.0, 10.0 );
@@ -70,8 +69,8 @@ static std::unique_ptr<GLSLProgram> program;
 int execute(int, char**);
 void initialise();
 void load();
-void render();
-void runPipeline();
+void loop();
+void reshape();
 void unload();
 void Mortimer();
 
@@ -82,6 +81,8 @@ void move();
 // callbacks
 static void close_callback(GLFWwindow *);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 static void error_callback(int error, const char* description);
 
 
@@ -100,9 +101,8 @@ int execute(int argc, char** argv)
     initialise();
     load();
 
-    while (!glfwWindowShouldClose(window)) {
-        render();
-    }
+    // exec main loop
+    while (!glfwWindowShouldClose(window)) loop();
 
     unload();
     glfwDestroyWindow(window);
@@ -128,7 +128,7 @@ void initialise()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow( gwidth, gheight, "Iron Dust", nullptr, nullptr);
+    window = glfwCreateWindow(size.x, size.y, "Iron Dust", nullptr, nullptr);
     if(window == nullptr) {
         glfwTerminate();
         exit(EXIT_FAILURE);
@@ -137,6 +137,7 @@ void initialise()
     glfwMakeContextCurrent(window);
 
     // init the extension library
+    glewExperimental = GL_TRUE; // enable "modern" opengl stuff
     GLenum err = glewInit();
     if(err != GLEW_OK) {
         LOG_ERROR << "GLEW Init failed: " << glewGetErrorString(err) << std::endl;
@@ -146,33 +147,37 @@ void initialise()
 
     // set remaining callbacks
     glfwSetWindowCloseCallback(window, close_callback);
-    glfwSetKeyCallback(window, key_callback); // instead of keyboard()
-
-    /*
-    printf("OpenGL Version %s initialised\n", glGetString(GL_VERSION));
-    GLfloat m, p;
-    glGetFloatv(GL_MAX_MODELVIEW_STACK_DEPTH, &m);
-    glGetFloatv(GL_MAX_PROJECTION_STACK_DEPTH, &p);
-    printf("The maximal depth of the Modelview Matrix stack is: %2f\n", m);
-    printf("The maximal depth of the Projection Matrix stack is: %2f\n", p);
-    */
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetCursorPos(window, gwidth/2, gheight/2);
+    glfwSetCursorPos(window, size.x/2, size.y/2);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // no cursor!
     glfwSwapInterval(1); // default is 0 -- on faster machines this could lead to tearing
 
     // Standard background color
     glClearColor(0.0f, 0.156f, 0.392f, 0.f);
+
+    // Cull triangles which normal is not towards the camera
+    glEnable(GL_CULL_FACE);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
-    // Cull triangles which normal is not towards the camera
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+    //glEnable(GL_LIGHTING);
+    //glEnable(GL_LIGHT0);
+
+    LOG_INFO << "-----------------------------------------------------------------------" << std::endl;
+    LOG_INFO << "OpenGL Version \t" << glGetString(GL_VERSION) << std::endl;
+    LOG_INFO << "OpenGL Renderer\t " << glGetString(GL_RENDERER) << std::endl;
+    //LOG_INFO << "OpenGL Extensions\t " << glGetString(GL_EXTENSIONS) << std::endl;
+    GLfloat m, p;
+    glGetFloatv(GL_MAX_MODELVIEW_STACK_DEPTH, &m);
+    glGetFloatv(GL_MAX_PROJECTION_STACK_DEPTH, &p);
+    LOG_INFO << "Max MV Matrix stack\t " << m << std::endl;
+    LOG_INFO << "Max Proj Matrix stack\t " << p << std::endl;
+    LOG_INFO << "-----------------------------------------------------------------------" << std::endl;
 }
 
 
@@ -194,20 +199,20 @@ void load()
 }
 
 
-void render()
+void loop()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_BACK);
-    glLoadIdentity();
+    //glLoadIdentity();
 
     // activate ShaderProgram: use it:
     program->bind();
 
-    // calculate movement transformations
-    runPipeline();
+    // redraw scene: calculate movement transformations
+    reshape();
 
-    // draw simple model...
-    model->render(Model::RENDER_NO_TEXTURES); // porsche has no texture...
+    // render stuff
+    model->render(/*Model::RENDER_NO_TEXTURES*/); // porsche has no texture...
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -215,7 +220,7 @@ void render()
 }
 
 
-void runPipeline()
+void reshape()
 {
     look();
     move();
@@ -260,29 +265,23 @@ void Mortimer()
 void move()
 {
     // Move forward
-    if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS){
+    if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS)
         position += direction * deltaTime * speed;
-    }
     // Move backward
-    if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS){
+    if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS)
         position -= direction * deltaTime * speed;
-    }
     // Strafe right
-    if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS){
+    if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS)
         position += right * deltaTime * speed;
-    }
     // Strafe left
-    if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
+    if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS)
         position -= right * deltaTime * speed;
-    }
     // Jump
-    if (glfwGetKey( window, GLFW_KEY_SPACE ) == GLFW_PRESS){
+    if (glfwGetKey( window, GLFW_KEY_SPACE ) == GLFW_PRESS)
         position += up * deltaTime * speed;
-    }
     // Duck
-    if (glfwGetKey( window, GLFW_KEY_C ) == GLFW_PRESS){
+    if (glfwGetKey( window, GLFW_KEY_C ) == GLFW_PRESS)
         position -= up * deltaTime * speed;
-    }
 }
 
 
@@ -296,9 +295,6 @@ void look()
     // Compute new orientation
     horizontalAngle += mouseSpeed * static_cast<float>(width/2 - xpos);
     verticalAngle   += mouseSpeed * static_cast<float>(height/2 - ypos);
-//    LOG_DEBUG << std::endl
-//              << "\tHAngle: " << static_cast<int>(glm::degrees(horizontalAngle)) % 360 << std::endl
-//              << "\tVAngle: " << static_cast<int>(glm::degrees(verticalAngle)) %360 << std::endl;
 
     // Direction : Spherical coordinates to Cartesian coordinates conversion
     direction = glm::vec3(
@@ -335,27 +331,23 @@ static void close_callback(GLFWwindow* window)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    static_cast<void>(scancode);
-    static_cast<void>(mods);
-
     static bool wireframe = false;
 
-    LOG_DEBUG << "KEY Action: key=" << key
-              << ", action=" << action
-              << ", scancode=" << scancode
-              << ", mods=" << mods << std::endl;
-
-    if(mods == 1) speed = 15.f;
+    if(mods & GLFW_MOD_SHIFT) speed = 15.f;
     else speed = 3.f;
 
     switch (key) {
     case GLFW_KEY_E:
-        FoV += 5.0f;
-        if(FoV >= 360.0f) FoV = 45.0f;
+        if(action == GLFW_PRESS) {
+            FoV += 5.0f;
+            if(FoV >= 360.0f) FoV = 45.0f;
+        }
         break;
     case GLFW_KEY_Q:
-        FoV -= 5.0f;
-        if(FoV <= 0.0f) FoV = 45.0f;
+        if(action == GLFW_PRESS) {
+            FoV -= 5.0f;
+            if(FoV <= 0.0f) FoV = 45.0f;
+        }
         break;
     case GLFW_KEY_ESCAPE:
         if(action == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
@@ -371,7 +363,30 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     case GLFW_KEY_P:
         if(action == GLFW_PRESS) ortho = !ortho;
         break;
+    default:
+        LOG_DEBUG << "KEY Action: key=" << key
+                  << ", action=" << action
+                  << ", scancode=" << scancode
+                  << ", mods=" << mods << std::endl;
     }
+}
+
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    static_cast<void>(window);
+    //if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    LOG_DEBUG << "MOUSE Action: button=" << button
+              << ", action=" << action
+              << ", mods=" << mods << std::endl;
+}
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    static_cast<void>(window);
+    LOG_DEBUG << "MOUSE Scroll: xoff=" << xoffset
+              << ", yoff=" << yoffset<< std::endl;
 }
 
 
