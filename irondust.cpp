@@ -19,6 +19,8 @@
 
 #define LOG_LEVEL LOG_LEVEL_DEBUG
 
+#include <geometry.hpp>
+
 #include <cg/oogl/glfwIncludes.hpp>
 #include <cg/oogl/Model.hpp>
 #include <cg/oogl/GLSLShader.hpp>
@@ -32,28 +34,37 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
+// sgnode stuff
+#include <sgscene.hpp>
+#include <sgcontext.hpp>
+#include <sgshadernode.hpp>
+#include <sgmaterialnode.hpp>
+#include <sglightnode.hpp>
+#include <sgtransformnode.hpp>
+#include <sgtexturenode.hpp>
+#include <sgnode.hpp>
+#include <sgmodel.hpp>
+
+
 using namespace cg::oogl;
 
-
-static const float PI = static_cast<float>(M_PI);
 
 static GLFWwindow* window;
 static glm::ivec2 size(840, 480);
 
 // Initial position vectors
-static glm::vec3 position = glm::vec3( 0.0, 0.0, 10.0 );
-static glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f);
+static glm::vec3 position = glm::vec3( -3, 2.0, 8.0 );
+static glm::vec3 direction = glm::vec3(.0f, 0.5f, .0f);
 static glm::vec3 right = glm::vec3(0.0f, 0.0f, 0.0f);
 static glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 // Initial horizontal angle : toward -Z
-static float horizontalAngle = glm::radians(-180.f); //glm::radians(356.5f);
+static float horizontalAngle = glm::radians(135.f);
 // Initial vertical angle : none
-static float verticalAngle = glm::radians(0.f); //glm::radians(222.5f);
+static float verticalAngle = glm::radians(-15.f);
 // Initial z-Axis angle
 static float depthAngle = 0.0f;
 // Initial Field of View in degrees (typically between 90° and 30°)
 static float FoV = 45.0f;
-static bool ortho = false;
 
 static float speed = 3.0f; // 3 units / second
 static float mouseSpeed = 0.0005f;
@@ -61,9 +72,8 @@ static double xpos = 0.0;
 static double ypos = 0.0;
 static float deltaTime = 0.0f;
 
-
-static std::unique_ptr<Model> model;
-static std::unique_ptr<GLSLProgram> program;
+/// scene graph
+static cg::SGScene* scene = nullptr;
 
 
 int execute(int, char**);
@@ -72,7 +82,7 @@ void load();
 void loop();
 void reshape();
 void unload();
-void Mortimer();
+void deltatime();
 
 void look();
 void move();
@@ -84,6 +94,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 static void error_callback(int error, const char* description);
+
 
 
 int main(int argc, char** argv)
@@ -153,30 +164,27 @@ void initialise()
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetCursorPos(window, size.x/2, size.y/2);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // no cursor!
-    glfwSwapInterval(1); // default is 0 -- on faster machines this could lead to tearing
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // no cursor!
+    //glfwSwapInterval(1); // default is 0 -- on faster machines this could lead to tearing
 
     // Standard background color
-    glClearColor(0.0f, 0.156f, 0.392f, 0.f);
+    glClearColor(0.2f, 0.2f, 0.3f, 1.f);
 
     // Cull triangles which normal is not towards the camera
-    glEnable(GL_CULL_FACE);
-    // Enable depth test
+    //glEnable(GL_CULL_FACE);
+
+    // Enable depth test (accept if it closer to the camera than the former one)
     glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
-    //glEnable(GL_LIGHTING);
-    //glEnable(GL_LIGHT0);
+
+    // enable alpha blend
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     LOG_INFO << "-----------------------------------------------------------------------" << std::endl;
     LOG_INFO << "OpenGL Version \t" << glGetString(GL_VERSION) << std::endl;
     LOG_INFO << "OpenGL Renderer\t " << glGetString(GL_RENDERER) << std::endl;
     //LOG_INFO << "OpenGL Extensions\t " << glGetString(GL_EXTENSIONS) << std::endl;
-    GLfloat m, p;
-    glGetFloatv(GL_MAX_MODELVIEW_STACK_DEPTH, &m);
-    glGetFloatv(GL_MAX_PROJECTION_STACK_DEPTH, &p);
-    LOG_INFO << "Max MV Matrix stack\t " << m << std::endl;
-    LOG_INFO << "Max Proj Matrix stack\t " << p << std::endl;
     LOG_INFO << "-----------------------------------------------------------------------" << std::endl;
 }
 
@@ -184,81 +192,88 @@ void initialise()
 void load()
 {
     LOG_INFO << "Loading scenes..." << std::endl;
-
-    std::string models("../IronDust/models");
     std::string src("../IronDust");
+    std::string models(src+"/models");
+    std::string textures(src+"/textures");
 
-    GLSLShader* vsh = GLSLShader::create(GLSLShader::VERTEX, src + "/default.vsh");
-    GLSLShader* fsh = GLSLShader::create(GLSLShader::FRAGMENT, src + "/default.fsh");
-    program.reset(new GLSLProgram({vsh, fsh}));
+    // construct scene graph
+    GLSLShader* vsh1 = GLSLShader::create(GLSLShader::VERTEX, src + "/default.vsh");
+    GLSLShader* fsh1 = GLSLShader::create(GLSLShader::FRAGMENT, src + "/default.fsh");
+    GLSLShader* vsh2 = GLSLShader::create(GLSLShader::VERTEX, src + "/phong.vsh");
+    GLSLShader* fsh2 = GLSLShader::create(GLSLShader::FRAGMENT, src + "/phong.fsh");
 
-    // load a simple model:
-    model.reset(loadModel(models + "/porsche/porsche.obj",
-                          Model::LOAD_SET_SMOOTHING_GROUP |
-                          Model::LOAD_NORMALIZE_TWO));
+    // root node with phong shader
+    scene = new cg::SGScene(new cg::SGShaderNode(new GLSLProgram({vsh2, fsh2})));
+    cg::ISGNode& root = scene->getRoot();
+
+    // add light to root
+    root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {-0.5, 3., -4.})))
+            .append(new cg::SGLightNode())
+            .append(new cg::SGShaderNode(new GLSLProgram({vsh1, fsh1})))
+            .append(cg::SGModel::createCube(scene->getContext(), {.3, .3, .3}));
+
+    // add floor to root
+    auto& m = dynamic_cast<cg::SGMaterialNode&>(root.append(new cg::SGMaterialNode()));
+    m.append(new cg::SGTransformNode(
+                  glm::translate(glm::mat4(1.), {0., -0.5, 0.}) *
+                  glm::rotate(glm::mat4(1.), glm::radians(-90.f), {1., 0., 0.})
+                  ))
+            .append(new cg::SGTextureNode(scene->getContext(), textures+"/lava2.jpg"))
+            .append(cg::SGModel::createQuad(scene->getContext(), {9.,9.}));
+    m.diffuse = {.8f, .8f, .8f, 1.f};
+    m.emission = {.05f, .05f, .003f, 1.f};
+    m.shininess = 5.f;
+    m.ambient = {.4f, .4f, .4f, 1.f};
+    m.specular = {.1f, .1f, .1f, 1.f};
+
+    // add a sphere to root
+    root.append(new cg::SGMaterialNode())
+            .append(cg::SGModel::createSphere(scene->getContext(), 1));
+
+    scene->init();
 }
 
 
 void loop()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_BACK);
-    //glLoadIdentity();
+    //glCullFace(GL_BACK);
+    deltatime();
 
-    // activate ShaderProgram: use it:
-    program->bind();
-
-    // redraw scene: calculate movement transformations
+    look();
+    move();
     reshape();
 
-    // render stuff
-    model->render(/*Model::RENDER_NO_TEXTURES*/); // porsche has no texture...
+    // render scenegraph
+    scene->render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-    Mortimer();
 }
 
 
 void reshape()
 {
-    look();
-    move();
-
-    glm::mat4 p, v, m, mvp;
-    int width, height;
-    float ratio;
-
+    glm::i32 width, height;
     glfwGetFramebufferSize(window, &width, &height);
-    ratio = width / height;
+    cg::SGContext& context = scene->getContext();
 
-    if(ortho) {
-        p = glm::ortho(-10.f,10.f,-10.f,10.f,0.f,100.f);
-    } else {
-        p = glm::perspective(glm::radians(FoV), ratio, .1f, 100.f);
-    }
+    static glm::f32 ratio = cg::ratio(width, height);
+    static glm::f32 near = .1f;
+    static glm::f32 far = 100.f;
+    context.projection_matrix = glm::perspective(glm::radians(FoV), ratio, near, far);
 
     // {cam position, cam look-at, cam-rotaiton}
-    v = glm::lookAt(position, position+direction, up);
-    m = glm::mat4(1.0f); // identity: model will be at the origin
-    mvp = p * v * m; // model-view-projection: read multiplication in reverse-order
-
-    // finally give that to shader uniform:
-    (*program)["MVP"] = mvp;
+    context.view_matrix = glm::lookAt(position, position+direction, up);
 }
 
 
-void Mortimer()
+void deltatime()
 {
     static double lastTick = glfwGetTime();
     double currentTick = glfwGetTime();
-    float tick = float(currentTick - lastTick);
-    deltaTime = tick;
+    deltaTime = float(currentTick - lastTick);
     lastTick = glfwGetTime();
-
-    if(tick > 33) {
-        // put animation timer variable here
-    }
 }
 
 
@@ -287,14 +302,16 @@ void move()
 
 void look()
 {
-    int width, height = 0;
+    int width, height, hwith, hheight = 0;
     glfwGetCursorPos(window, &xpos, &ypos);
     glfwGetWindowSize (window, &width, &height);
-    glfwSetCursorPos(window, width/2, height/2);
+    hheight = height / 2;
+    hwith = width / 2;
+    glfwSetCursorPos(window, hwith, hheight);
 
     // Compute new orientation
-    horizontalAngle += mouseSpeed * static_cast<float>(width/2 - xpos);
-    verticalAngle   += mouseSpeed * static_cast<float>(height/2 - ypos);
+    horizontalAngle += mouseSpeed * static_cast<float>(hwith - xpos);
+    verticalAngle   += mouseSpeed * static_cast<float>(hheight - ypos);
 
     // Direction : Spherical coordinates to Cartesian coordinates conversion
     direction = glm::vec3(
@@ -305,9 +322,9 @@ void look()
 
     // Right vector
     right = glm::vec3(
-        sinf(horizontalAngle - PI/2.0f),
+        sinf(horizontalAngle - HPIl),
         tanf(depthAngle),
-        cosf(horizontalAngle - PI/2.0f)
+        cosf(horizontalAngle - HPIl)
     );
 
     // Up vector
@@ -315,11 +332,11 @@ void look()
 }
 
 
-
 void unload()
 {
     LOG_INFO << "Unloading scenes..." << std::endl;
 }
+
 
 
 static void close_callback(GLFWwindow* window)
@@ -359,9 +376,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             if(wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
-        break;
-    case GLFW_KEY_P:
-        if(action == GLFW_PRESS) ortho = !ortho;
         break;
     default:
         LOG_DEBUG << "KEY Action: key=" << key

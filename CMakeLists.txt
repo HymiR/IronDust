@@ -22,6 +22,8 @@ project(irondust
 	VERSION 0.1
 )
 
+set(CMAKE_CXX_STANDARD 11)
+
 # needed system libs
 find_package(libcg REQUIRED)
 
@@ -41,12 +43,45 @@ link_directories(BEFORE
 )
 
 set(SOURCES
+	geometry.cpp
+	geometry.hpp
 	irondust.cpp
+	isgelement.cpp
+	isgelement.hpp
+	isgnode.cpp
+	isgnode.hpp
+	isgresource.cpp
+	isgresource.hpp
+	isgresourcenode.cpp
+	isgresourcenode.hpp
+	sgmodel.cpp
+	sgmodel.hpp
+	sgconstants.hpp
+	sgcontext.cpp
+	sgcontext.hpp
+	sglightnode.cpp
+	sglightnode.hpp
+	sgmaterialnode.cpp
+	sgmaterialnode.hpp
+	sgnode.cpp
+	sgnode.hpp
+	sgrendernode.cpp
+	sgrendernode.hpp
+	sgscene.cpp
+	sgscene.hpp
+	sgshadernode.cpp
+	sgshadernode.hpp
+	sgtexturenode.cpp
+	sgtexturenode.hpp
+	sgtransformnode.cpp
+	sgtransformnode.hpp
 )
 
 set(SHADERS
 	default.vsh
 	default.fsh
+	phong.vsh
+	phong.fsh
 )
 
 add_executable(${PROJECT_NAME}
