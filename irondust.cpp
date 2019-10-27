@@ -173,7 +173,8 @@ void initialise()
     glClearColor(0.2f, 0.2f, 0.3f, 1.f);
 
     // Cull triangles which normal is not towards the camera
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     // Enable depth test (accept if it closer to the camera than the former one)
     glEnable(GL_DEPTH_TEST);
