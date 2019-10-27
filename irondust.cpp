@@ -219,19 +219,22 @@ void load()
     auto& m = dynamic_cast<cg::SGMaterialNode&>(root.append(new cg::SGMaterialNode()));
     m.append(new cg::SGTransformNode(
                   glm::translate(glm::mat4(1.), {0., -0.5, 0.}) *
-                  glm::rotate(glm::mat4(1.), glm::radians(-90.f), {1., 0., 0.})
-                  ))
+                  glm::rotate(glm::mat4(1.), glm::radians(-90.f), {1., 0., 0.})))
             .append(new cg::SGTextureNode(scene->getContext(), textures+"/lava2.jpg"))
             .append(cg::SGModel::createQuad(scene->getContext(), {9.,9.}));
     m.diffuse = {.8f, .8f, .8f, 1.f};
     m.emission = {.05f, .05f, .003f, 1.f};
-    m.shininess = 5.f;
     m.ambient = {.4f, .4f, .4f, 1.f};
     m.specular = {.1f, .1f, .1f, 1.f};
+    m.shininess = 5.f;
 
     // add a sphere to root
     root.append(new cg::SGMaterialNode())
             .append(cg::SGModel::createSphere(scene->getContext(), 1));
+
+    // add a cube to root
+    root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {-1.5, 0.5, 0.5})))
+            .append(cg::SGModel::createCube(scene->getContext(), {.5, .5, .5}));
 
     scene->init();
 }
@@ -240,7 +243,6 @@ void load()
 void loop()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glCullFace(GL_BACK);
     deltatime();
 
     look();

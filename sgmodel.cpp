@@ -54,7 +54,7 @@ namespace cg
                 node->vertex.push_back(y * radius);
                 node->vertex.push_back(z * radius);
 
-                // create inices:
+                // create indices:
                 if((lat < grid.x) && (lon < grid.y)) {
                     glm::u32 first = lat * (grid.x + 1u) + lon;
                     glm::u32 second = first + grid.y + 1u;
