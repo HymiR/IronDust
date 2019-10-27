@@ -164,7 +164,9 @@ void initialise()
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetCursorPos(window, size.x/2, size.y/2);
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // no cursor!
+#ifdef NDEBUG
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // no cursor!
+#endif
     //glfwSwapInterval(1); // default is 0 -- on faster machines this could lead to tearing
 
     // Standard background color
