@@ -72,6 +72,8 @@ namespace cg
 
     /**
      * @brief SGModel::createCube
+     * Each face consists of 2 triangles. On each face, there are two diagonal points
+     * which share vertices and normals. So we have 4 distinct vertex-normal combinations per face.
      * @param context Scene graph context ref.
      * @param size {width, height, depth} in units.
      * @return A render scene graph node.
@@ -80,31 +82,66 @@ namespace cg
     {
         size = glm::abs(size/2.f);
         auto* node = new SGRenderNode(context);
+
         node->vertex = {
-            -size.x, -size.y, -size.z,
-             size.x, -size.y, -size.z,
-             size.x,  size.y, -size.z,
-            -size.x,  size.y, -size.z,
-            -size.x, -size.y,  size.z,
-             size.x, -size.y,  size.z,
-             size.x,  size.y,  size.z,
-            -size.x,  size.y,  size.z,
-            -size.x, -size.y, -size.z,
-            -size.x,  size.y, -size.z,
-            -size.x,  size.y,  size.z,
-            -size.x, -size.y,  size.z,
-             size.x, -size.y, -size.z,
-             size.x,  size.y, -size.z,
-             size.x,  size.y,  size.z,
-             size.x, -size.y,  size.z,
-            -size.x, -size.y, -size.z,
-            -size.x, -size.y,  size.z,
-             size.x, -size.y,  size.z,
-             size.x, -size.y, -size.z,
-            -size.x,  size.y, -size.z,
-            -size.x,  size.y,  size.z,
-             size.x,  size.y,  size.z,
-             size.x,  size.y, -size.z,
+            // north
+            size.x, -size.y, -size.z, // B 0
+           -size.x, -size.y, -size.z, // A 1
+           -size.x,  size.y, -size.z, // D 2
+//         -size.x,  size.y, -size.z, // D
+            size.x,  size.y, -size.z, // C 3
+//          size.x, -size.y, -size.z, // B
+            // west
+           -size.x, -size.y, -size.z, // A 4
+           -size.x, -size.y,  size.z, // E 5
+           -size.x,  size.y,  size.z, // H 6
+//         -size.x,  size.y,  size.z, // H
+           -size.x,  size.y, -size.z, // D 7
+//         -size.x, -size.y, -size.z, // A
+            // south
+           -size.x, -size.y,  size.z, // E 8
+            size.x, -size.y,  size.z, // F 9
+            size.x,  size.y,  size.z, // G 10
+//          size.x,  size.y,  size.z, // G
+           -size.x,  size.y,  size.z, // H 11
+//         -size.x, -size.y,  size.z, // E
+            // east
+            size.x, -size.y,  size.z, // F 12
+            size.x, -size.y, -size.z, // B 13
+            size.x,  size.y, -size.z, // C 14
+//            size.x,  size.y, -size.z, // C
+            size.x,  size.y,  size.z, // G 15
+//            size.x, -size.y,  size.z, // F
+            // top
+            -size.x,  size.y,  size.z, // H 16
+             size.x,  size.y,  size.z, // G 17
+             size.x,  size.y, -size.z, // C 18
+//            size.x,  size.y, -size.z, // C
+            -size.x,  size.y, -size.z, // D 19
+//            -size.x,  size.y,  size.z, // H
+            // bottom
+            -size.x, -size.y,  size.z, // E 20
+            -size.x, -size.y, -size.z, // A 21
+             size.x, -size.y, -size.z, // B 22
+//             size.x, -size.y, -size.z, // B
+             size.x, -size.y,  size.z, // F 23
+//            -size.x, -size.y,  size.z, // E
+        };
+        node->index = {
+             0u,  1u,  2u,   2u,  3u,  0u, // north
+             4u,  5u,  6u,   6u,  7u,  4u, // west
+             8u,  9u, 10u,  10u, 11u,  8u, // south
+            12u, 13u, 14u,  14u, 15u, 12u, // east
+            16u, 17u, 18u,  18u, 19u, 16u, // top
+            20u, 21u, 22u,  22u, 23u, 20u, // bottom
+        };
+        node->normal = {
+            0.0, 0.0,-1.0,  0.0, 0.0,-1.0,  0.0, 0.0,-1.0,  0.0, 0.0,-1.0, // north
+           -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, // west
+            0.0, 0.0, 1.0,  0.0, 0.0, 1.0,  0.0, 0.0, 1.0,  0.0, 0.0, 1.0, // south
+            1.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 0.0, 0.0, // east
+            0.0, 1.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 0.0, // top
+            0.0,-1.0, 0.0,  0.0,-1.0, 0.0,  0.0,-1.0, 0.0,  0.0,-1.0, 0.0, // bottom
         };
         node->color = {
             0.583f, 0.771f, 0.014f, 0.6f,
@@ -131,26 +168,18 @@ namespace cg
             0.279f, 0.317f, 0.505f, 0.6f,
             0.167f, 0.620f, 0.077f, 0.6f,
             0.347f, 0.857f, 0.137f, 0.6f,
-            0.055f, 0.953f, 0.042f, 0.6f,
-            0.714f, 0.505f, 0.345f, 0.6f,
-            0.783f, 0.290f, 0.734f, 0.6f,
-            0.722f, 0.645f, 0.174f, 0.6f,
-            0.302f, 0.455f, 0.848f, 0.6f,
-            0.225f, 0.587f, 0.040f, 0.6f,
-            0.517f, 0.713f, 0.338f, 0.6f,
-            0.053f, 0.959f, 0.120f, 0.6f,
-            0.393f, 0.621f, 0.362f, 0.6f,
-            0.673f, 0.211f, 0.457f, 0.6f,
-            0.820f, 0.883f, 0.371f, 0.6f,
-            0.982f, 0.099f, 0.879f, 0.6f,
-        };
-        node->index = {
-            0, 1, 2, 0, 2, 3,
-            4, 5, 6, 4, 6, 7,
-            8, 9, 10, 8, 10, 11,
-            12, 13, 14, 12, 14, 15,
-            16, 17, 18, 16, 18, 19,
-            20, 21, 22, 20, 22, 23
+//            0.055f, 0.953f, 0.042f, 0.6f,
+//            0.714f, 0.505f, 0.345f, 0.6f,
+//            0.783f, 0.290f, 0.734f, 0.6f,
+//            0.722f, 0.645f, 0.174f, 0.6f,
+//            0.302f, 0.455f, 0.848f, 0.6f,
+//            0.225f, 0.587f, 0.040f, 0.6f,
+//            0.517f, 0.713f, 0.338f, 0.6f,
+//            0.053f, 0.959f, 0.120f, 0.6f,
+//            0.393f, 0.621f, 0.362f, 0.6f,
+//            0.673f, 0.211f, 0.457f, 0.6f,
+//            0.820f, 0.883f, 0.371f, 0.6f,
+//            0.982f, 0.099f, 0.879f, 0.6f,
         };
         return node;
     }
