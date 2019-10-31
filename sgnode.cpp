@@ -19,44 +19,70 @@ namespace cg
 {
 
     SGNode::SGNode()
+        : children(nullptr)
+        , single(true)
     {
     }
 
     SGNode::SGNode(const std::vector<ISGNode*>& children)
-        :children(children)
+        : children(new std::vector<ISGNode*>(children))
+        , single(false)
     {
     }
 
     SGNode::SGNode(const std::initializer_list<ISGNode*>& children)
-        :children(children)
+        : children(new std::vector<ISGNode*>(children))
+        , single(false)
     {
     }
 
     SGNode::SGNode(ISGNode* child)
-        :children({child})
+        : children(child)
+        , single(true)
     {
     }
 
     SGNode::~SGNode()
     {
-        for (ISGNode* child : children)
-            delete child;
+        if(!single) {
+            for (ISGNode* child : *reinterpret_cast<std::vector<ISGNode*>*>(children)) delete child;
+            delete reinterpret_cast<std::vector<ISGNode*>*>(children);
+        }
 
-        children.clear();
+        delete reinterpret_cast<ISGNode*>(children);
     }
 
     ISGNode& SGNode::append(ISGNode* child)
     {
-        children.push_back(child);
-        return *children.back();
+        if(!children) {
+            this->children = child;
+        } else if(single) {
+            std::vector<ISGNode*>* c = new std::vector<ISGNode*>();
+            c->push_back(reinterpret_cast<ISGNode*>(children));
+            c->push_back(reinterpret_cast<ISGNode*>(child));
+            children = c;
+            single = false;
+        } else {
+            reinterpret_cast<std::vector<ISGNode*>*>(children)->push_back(child);
+        }
+
+        return *child;
     }
 
     bool SGNode::remove(ISGNode* child)
     {
-        auto rem = std::find(children.begin(), children.end(), child);
-        if(rem != children.end()) {
-            children.erase(rem);
-            return true;
+        if(children) {
+            if(single) {
+                children = nullptr;
+                return true;
+            } else {
+                auto& children = *reinterpret_cast<std::vector<ISGNode*>*>(this->children);
+                auto rem = std::find(children.begin(), children.end(), child);
+                if(rem != children.end()) {
+                    children.erase(rem);
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -64,8 +90,12 @@ namespace cg
 
     void SGNode::render(SGContext& context)
     {
-        for (ISGNode* child : children) {
-            child->render(context);
+        if(single && children) {
+            reinterpret_cast<ISGNode*>(children)->render(context);
+        } else {
+            for (ISGNode* child : *reinterpret_cast<std::vector<ISGNode*>*>(children)) {
+                child->render(context);
+            }
         }
     }
 }

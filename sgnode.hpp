@@ -35,7 +35,8 @@ namespace cg
         virtual void render(SGContext& context) override;
 
     private:
-        std::vector<ISGNode*> children;
+        void* children;
+        bool single;
     };
 }
 
