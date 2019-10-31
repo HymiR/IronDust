@@ -211,9 +211,9 @@ void load()
 
     // add light to root
     root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {-0.5, 3., -4.})))
-            .append(new cg::SGLightNode())
+            .append(new cg::SGLightNode())/*
             .append(new cg::SGShaderNode(new GLSLProgram({vsh1, fsh1})))
-            .append(cg::SGModel::createCube(scene->getContext(), {.3, .3, .3}));
+            .append(cg::SGModel::createCube(scene->getContext(), {.3, .3, .3}))*/;
 
     // add floor to root
     auto& m = dynamic_cast<cg::SGMaterialNode&>(root.append(new cg::SGMaterialNode()));
