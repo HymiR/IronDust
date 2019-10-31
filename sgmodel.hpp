@@ -28,6 +28,7 @@ namespace cg
     {
     public:
         static ISGNode* createSphere(SGContext& context, glm::f32 radius=2.f, glm::uvec2 grid={30, 30});
+        static ISGNode* createPyramid(SGContext& context, glm::f32 size=1.0f, glm::f32 h=0.75f);
         static ISGNode* createCube(SGContext& context, glm::vec3 size={1.f, 1.f, 1.f});
         static ISGNode* createQuad(SGContext& context, glm::vec2 size={2.f, 2.f});
 

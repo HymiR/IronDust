@@ -236,6 +236,10 @@ void load()
     root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {-1.5, 0.5, 0.5})))
             .append(cg::SGModel::createCube(scene->getContext(), {.5, .5, .5}));
 
+    // add a pyramid to root
+    root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {3.5, 0.3, 1.5})))
+            .append(cg::SGModel::createPyramid(scene->getContext(), 2.2f, 1.4f));
+
     scene->init();
 }
 
