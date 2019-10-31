@@ -22,7 +22,6 @@
 #include <geometry.hpp>
 
 #include <cg/oogl/glfwIncludes.hpp>
-#include <cg/oogl/Model.hpp>
 #include <cg/oogl/GLSLShader.hpp>
 #include <cg/oogl/GLSLProgram.hpp>
 #include <cg/oogl/gl_error.hpp>
