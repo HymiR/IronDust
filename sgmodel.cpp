@@ -256,22 +256,34 @@ namespace cg
         auto* node = new SGRenderNode(context);
         size = glm::abs(size/2.f);
         node->grouping = 2; // we have 2d coords
+
         node->vertex = {
-            -size.x,  size.y,
-             size.x,  size.y,
-             size.x, -size.y,
-            -size.x, -size.y,
+           -size.x,  size.y, // A
+           -size.x, -size.y, // B
+            size.x, -size.y, // C
+            size.x,  size.y, // D
         };
-        node->normal = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1};
-        node->texture = {0, 0 /**/, 1, 0 /**/, 1, 1 /**/, 0, 1};
-        node->index = {0, 1, 2, 2, 3, 0};
+        node->normal = {
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
+        };
+        node->texture = {
+            0, 0,
+            0, 1,
+            1, 1,
+            1, 0,
+        };
+        node->index = {
+            0, 1, 2,
+            2, 3, 0,
+        };
         node->color = {
-            0.5f, 0.5f, 0.3f, 1.0f,
-            0.3f, 0.3f, 0.3f, 1.0f,
-            0.9f, 0.9f, 0.8f, 1.0f,
-            0.9f, 0.9f, 0.8f, 1.0f,
-            0.3f, 0.3f, 0.3f, 1.0f,
-            0.5f, 0.6f, 0.5f, 1.0f,
+            0.678f, 0.643f, 0.631f, 1.0f,
+            0.678f, 0.643f, 0.631f, 1.0f,
+            0.678f, 0.643f, 0.631f, 1.0f,
+            0.678f, 0.643f, 0.631f, 1.0f,
         };
         return node;
     }
