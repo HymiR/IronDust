@@ -187,44 +187,32 @@ namespace cg
             size.x, -size.y, -size.z, // B 0
            -size.x, -size.y, -size.z, // A 1
            -size.x,  size.y, -size.z, // D 2
-//         -size.x,  size.y, -size.z, // D
             size.x,  size.y, -size.z, // C 3
-//          size.x, -size.y, -size.z, // B
             // west
            -size.x, -size.y, -size.z, // A 4
            -size.x, -size.y,  size.z, // E 5
            -size.x,  size.y,  size.z, // H 6
-//         -size.x,  size.y,  size.z, // H
            -size.x,  size.y, -size.z, // D 7
-//         -size.x, -size.y, -size.z, // A
             // south
            -size.x, -size.y,  size.z, // E 8
             size.x, -size.y,  size.z, // F 9
             size.x,  size.y,  size.z, // G 10
-//          size.x,  size.y,  size.z, // G
            -size.x,  size.y,  size.z, // H 11
-//         -size.x, -size.y,  size.z, // E
             // east
             size.x, -size.y,  size.z, // F 12
             size.x, -size.y, -size.z, // B 13
             size.x,  size.y, -size.z, // C 14
-//            size.x,  size.y, -size.z, // C
             size.x,  size.y,  size.z, // G 15
-//            size.x, -size.y,  size.z, // F
             // top
-            -size.x,  size.y,  size.z, // H 16
-             size.x,  size.y,  size.z, // G 17
-             size.x,  size.y, -size.z, // C 18
-//            size.x,  size.y, -size.z, // C
-            -size.x,  size.y, -size.z, // D 19
-//            -size.x,  size.y,  size.z, // H
+           -size.x,  size.y,  size.z, // H 16
+            size.x,  size.y,  size.z, // G 17
+            size.x,  size.y, -size.z, // C 18
+           -size.x,  size.y, -size.z, // D 19
             // bottom
-            -size.x, -size.y,  size.z, // E 20
-            -size.x, -size.y, -size.z, // A 21
-             size.x, -size.y, -size.z, // B 22
-//             size.x, -size.y, -size.z, // B
-             size.x, -size.y,  size.z, // F 23
-//            -size.x, -size.y,  size.z, // E
+           -size.x, -size.y,  size.z, // E 20
+           -size.x, -size.y, -size.z, // A 21
+            size.x, -size.y, -size.z, // B 22
+            size.x, -size.y,  size.z, // F 23
         };
         node->index = {
              0u,  1u,  2u,   2u,  3u,  0u, // north
