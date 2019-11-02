@@ -24,9 +24,8 @@ void main()
 
 	// The color of each vertex will be interpolated
 	// to produce the color of each fragment
-	if(a_color == vec4(0))
-		v_color = vec4(1, .2, .2, 1); // simply red.
+	if(length(a_color) == 0)
+		v_color = vec4(1, .2, .2, 0.5); // transparent red.
 	else
 		v_color = a_color;
 }
-
