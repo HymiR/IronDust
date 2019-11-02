@@ -1,8 +1,23 @@
-#version 120
-
 /**
- * a phong shader implementation with texture support
- */
+ ** This file is part of the irondust project.
+ ** Copyright 2019 CyberViking Softwareschmiede GbR <leghissa@cyber-viking.com>.
+ **
+ ** This program is free software: you can redistribute it and/or modify
+ ** it under the terms of the GNU Lesser General Public License as
+ ** published by the Free Software Foundation, either version 3 of the
+ ** License, or (at your option) any later version.
+ **
+ ** This program is distributed in the hope that it will be useful,
+ ** but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ** GNU Lesser General Public License for more details.
+ **
+ ** You should have received a copy of the GNU Lesser General Public License
+ ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+
+#version 120
 
 
 /**
@@ -41,7 +56,7 @@ uniform Material u_material;
 uniform Light u_light;
 
 // bit set general options
-uniform bool u_options[64];
+uniform bool u_options[16];
 
 //texture related variables
 uniform sampler2D u_tex_object;
@@ -64,19 +79,17 @@ bool use(int option)
 }
 
 
-vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, vec3 normalVec, vec3 eyeVec)
+vec4 pointLight(Light light, Material material, vec3 lightVec, vec3 normalVec, vec3 eyeVec)
 {
-	// You can find all built-in functions (min, max, clamp, reflect, normalize, etc.)
-	// and variables (gl_FragCoord, gl_Position) in the OpenGL Shading Language Specification:
-	// https://www.khronos.org/registry/OpenGL/specs/gl/GLSLangSpec.4.60.html#built-in-functions
+	// normalise, just to be sure
 	lightVec = normalize(lightVec);
 	normalVec = normalize(normalVec);
 	eyeVec = normalize(eyeVec);
 
-	//compute diffuse term
+	// compute diffuse term
 	float diffuse = max(dot(normalVec, lightVec), 0.0);
 
-	//compute specular term
+	// compute specular term
 	vec3 reflectVec = reflect(-lightVec, normalVec);
 	float spec = pow(max(dot(reflectVec, eyeVec), 0.0), material.shininess);
 
@@ -98,6 +111,5 @@ vec4 calculateSimplePointLight(Light light, Material material, vec3 lightVec, ve
 
 void main(void)
 {
-	gl_FragColor = calculateSimplePointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec);
-	//gl_FragColor = v_color;
+	gl_FragColor = pointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec);
 }

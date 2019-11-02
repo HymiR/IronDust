@@ -1,5 +1,23 @@
+/**
+ ** This file is part of the irondust project.
+ ** Copyright 2019 CyberViking Softwareschmiede GbR <leghissa@cyber-viking.com>.
+ **
+ ** This program is free software: you can redistribute it and/or modify
+ ** it under the terms of the GNU Lesser General Public License as
+ ** published by the Free Software Foundation, either version 3 of the
+ ** License, or (at your option) any later version.
+ **
+ ** This program is distributed in the hope that it will be useful,
+ ** but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ** GNU Lesser General Public License for more details.
+ **
+ ** You should have received a copy of the GNU Lesser General Public License
+ ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ **/
+
+
 #version 120
-// Phong Vertex Shader
 
 
 // constants
@@ -21,21 +39,20 @@ attribute vec2 a_texture;
 
 // shader parameters
 // --------------------------------------------
-uniform mat4 u_modelview_mat;
-uniform mat3 u_normal_mat;
 uniform mat4 u_projection_mat;
-uniform mat4 u_invView;
+uniform mat4 u_modelview_mat;
+//uniform mat4 u_invview_mat;
+uniform mat3 u_normal_mat;
+uniform mat3 u_texture_mat;
 
 uniform vec3 u_lightPos;
 
-//uniform vec2 u_texoffset;
-uniform mat3 u_texMatrix;
 
 // bit set general options
-uniform bool u_options[64];
+uniform bool u_options[16];
 
 
-// output to next shader stage
+// shader stage output
 // --------------------------------------------
 varying vec4 v_color;
 
@@ -64,11 +81,11 @@ void main()
 	v_lightVec = u_lightPos - eyePosition.xyz;
 
 
-	// apply texture transformation if such a matrix is provided (i.e. it is not a null matrix)
+	// apply texture transformation if specifyed by options:
 	if(use(TEX) && use(TEX_ANIM)) {
-		vec3 txc = vec3(a_texture, 1) * u_texMatrix; // WTF!? are vectors treated as line vectors rather than column vectors?!
+		vec3 txc = vec3(a_texture, 1) * u_texture_mat; // WTF!? are vectors treated as line vectors rather than column vectors?!
 		v_texCoord = txc.xy;
-	} else {
+	} else if(use(TEX)) {
 		v_texCoord = a_texture;
 	}
 
