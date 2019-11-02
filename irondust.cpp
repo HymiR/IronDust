@@ -132,7 +132,7 @@ void initialise()
         exit(EXIT_FAILURE);
     }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
+   glfwWindowHint(GLFW_SAMPLES, 4);
     // for older gpus, e.g. older intel
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -214,18 +214,18 @@ void load()
             .append(new cg::SGShaderNode(new GLSLProgram({vsh1, fsh1})))
             .append(cg::SGModel::createCube(scene->getContext(), {.3, .3, .3}))*/;
 
-    // add floor to root
-    auto& m = dynamic_cast<cg::SGMaterialNode&>(root.append(new cg::SGMaterialNode()));
-    m.append(new cg::SGTransformNode(
-                  glm::translate(glm::mat4(1.), {0., -0.5, 0.}) *
-                  glm::rotate(glm::mat4(1.), glm::radians(-90.f), {1., 0., 0.})))
-            .append(new cg::SGTextureNode(scene->getContext(), textures+"/lava2.jpg"))
-            .append(cg::SGModel::createQuad(scene->getContext(), {9.,9.}));
-    m.diffuse = {.8f, .8f, .8f, 1.f};
-    m.emission = {.05f, .05f, .003f, 1.f};
-    m.ambient = {.4f, .4f, .4f, 1.f};
-    m.specular = {.1f, .1f, .1f, 1.f};
-    m.shininess = 5.f;
+    { // add floor to root
+        auto& m = dynamic_cast<cg::SGMaterialNode&>(root.append(new cg::SGMaterialNode()));
+        m.append(new cg::SGTransformNode(
+                      glm::translate(glm::mat4(1.), {0., -0.5, 0.}) *
+                      glm::rotate(glm::mat4(1.), glm::radians(-90.f), {1., 0., 0.})))
+                .append(new cg::SGTextureNode(scene->getContext(), textures+"/lava2.jpg"))
+                .append(cg::SGModel::createQuad(scene->getContext(), {15.,15.}));
+        m.diffuse = {.8f, .8f, .8f, 1.f};
+        m.ambient = {.7f, .7f, .7f, 1.f};
+        m.specular = {.01f, .01f, .01f, 1.f};
+        m.shininess = 0.1f;
+    }
 
     // add a sphere to root
     root.append(new cg::SGMaterialNode())
@@ -235,9 +235,28 @@ void load()
     root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {-1.5, 0.5, 0.5})))
             .append(cg::SGModel::createCube(scene->getContext(), {.5, .5, .5}));
 
-    // add a pyramid to root
-    root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {3.5, 0.3, 1.5})))
-            .append(cg::SGModel::createPyramid(scene->getContext(), 2.2f, 1.4f));
+    { // yet another cube
+        auto* m = new cg::SGMaterialNode();
+        m->diffuse = {1.f, .2f, .2f, 1.f};
+        m->ambient = {.8f, .1f, .2f, 1.f};
+        m->specular = {.2f, .45f, .2f, 1.f};
+        m->shininess = 5.0f;
+        root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {1.5, 1.0, 3})))
+                .append(m)
+                .append(cg::SGModel::createCube(scene->getContext(), {.3, 3.0, .3}));
+    }
+
+    { // add a pyramid to root
+        auto* m = new cg::SGMaterialNode();
+        m->diffuse = {.8f, .8f, .75f, 1.f};
+        m->ambient = {.5f, .5f, .35f, 1.f};
+        m->specular = {.1f, .1f, .1f, 1.f};
+        m->shininess = 0.3f;
+        root.append(new cg::SGTransformNode(glm::translate(glm::mat4(1.), {3.5, 0.3, 1.5})))
+                .append(new cg::SGTextureNode(scene->getContext(), textures+"/wall1.jpg"))
+                .append(m)
+                .append(cg::SGModel::createPyramid(scene->getContext(), 2.2f, 1.4f));
+    }
 
     scene->init();
 }
