@@ -83,17 +83,14 @@ namespace cg
         return node;
     }
 
-    ISGNode* SGModel::createPyramid(SGContext& context, glm::f32 size, glm::f32 h)
+    ISGNode* SGModel::createPyramid(SGContext& context, glm::f32 s, glm::f32 h)
     {
-        glm::f32 hs = size/2.f;
-        glm::f32 d = size*glm::sqrt(2.f);
-        // pythagoras: länge einer pyramidenseite
-        glm::f32 m = glm::sqrt(glm::pow(hs, 2.f)+glm::pow(h, 2.f));
-        // winkelsatz in gleichschenklig-rechtwinkligem dreieck, vereinfacht.
-        glm::f32 l = 0.5f*glm::sqrt(2.f)*m - 0.25f*glm::sqrt(2.f)*size;
-        glm::f32 n = 2*l+d; // norm.
-        glm::f32 x1 = l/n;
-        glm::f32 x2 = (l+d)/n;
+        glm::f32 hs = s/2.0f;
+        glm::f32 n = glm::max(s,h);
+        glm::f32 s1 = s/n;
+        glm::f32 s2 = 1.0f-s1;
+        glm::f32 s3 = s1/2.0f;
+        glm::f32 s4 = 1.0f-h/n;
         auto* node = new SGRenderNode(context);
 
         node->vertex = {
@@ -133,38 +130,40 @@ namespace cg
             0.0, -1.0, 0.0,
             0.0, -1.0, 0.0,
         };
-        auto& v = node->vertex;
-        glm::vec3 A(v[0], v[1], v[2]);
-        glm::vec3 B(v[3], v[4], v[5]);
-        glm::vec3 C(v[6], v[7], v[8]);
-        glm::vec3 D(v[9], v[10], v[11]);
-        glm::vec3 E(v[18], v[19], v[20]);
-        glm::vec3 west =  glm::triangleNormal(B, A, E);
-        glm::vec3 south = glm::triangleNormal(A, D, E);
-        glm::vec3 east =  glm::triangleNormal(D, C, E);
-        glm::vec3 north = glm::triangleNormal(C, B, E);
-        node->normal << west << west << west;
-        node->normal << south << south << south;
-        node->normal << east << east << east;
-        node->normal << north << north << north;
-
-//        node->texture = {
-//            0.5, x2,
-//             x2, 0.5,
-//            0.5, x1,
-//            0.5, x1,
-//             x1, 0.5,
-//            0.5, x2,
-//            0.0, 0.0,
-//            0.5, x1,
-//             x1, 0.5,
-//             x1, 0.5,
-//            0.5, x2,
-//            0.0, 1.0,
-//            1.0, 1.0,
-//             x2, 0.5,
-//            0.5, x2,
-//        };
+        {
+            auto& v = node->vertex;
+            glm::vec3 A(v[0], v[1], v[2]);
+            glm::vec3 B(v[3], v[4], v[5]);
+            glm::vec3 C(v[6], v[7], v[8]);
+            glm::vec3 D(v[9], v[10], v[11]);
+            glm::vec3 E(v[18], v[19], v[20]);
+            glm::vec3 west =  glm::triangleNormal(B, A, E);
+            glm::vec3 south = glm::triangleNormal(A, D, E);
+            glm::vec3 east =  glm::triangleNormal(D, C, E);
+            glm::vec3 north = glm::triangleNormal(C, B, E);
+            node->normal << west << west << west;
+            node->normal << south << south << south;
+            node->normal << east << east << east;
+            node->normal << north << north << north;
+        }
+        node->texture = {
+            0.0,  s2,
+            0.0, 1.0,
+             s1, 1.0,
+             s1,  s2,
+            0.0, 1.0,
+             s1, 1.0,
+             s3,  s4,
+            0.0, 1.0,
+             s1, 1.0,
+             s3,  s4,
+            0.0, 1.0,
+             s1, 1.0,
+             s3,  s4,
+            0.0, 1.0,
+             s1, 1.0,
+             s3,  s4,
+        };
 
         return node;
     }
