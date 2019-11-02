@@ -25,6 +25,8 @@ namespace cg
 
     public:
         ISGResourceNode(SGContext& context, const std::initializer_list<ISGNode*>& children);
+        ISGResourceNode(SGContext& context, ISGNode* child);
+        ISGResourceNode(SGContext& context);
     };
 }
 

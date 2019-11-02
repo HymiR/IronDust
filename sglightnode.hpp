@@ -14,6 +14,7 @@
 #define SGLIGHTNODE_HPP
 
 #include <sgnode.hpp>
+
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 
@@ -29,7 +30,8 @@ namespace cg
         glm::vec4 diffuse;
         glm::vec4 specular;
 
-        SGLightNode(glm::vec3 position=glm::vec3(0, 0, 0), const std::initializer_list<ISGNode*>& children={});
+        SGLightNode(ISGNode* child, glm::vec3 position=glm::vec3(0, 0, 0));
+        SGLightNode(glm::vec3 position=glm::vec3(0, 0, 0));
 
         // ISGNode interface
         virtual void render(SGContext& context) override;

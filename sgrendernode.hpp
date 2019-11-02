@@ -35,7 +35,7 @@ namespace cg
         std::vector<glm::f32> normal;
         std::vector<glm::uint> index; // uint and u32 may not be the same!
 
-        SGRenderNode(SGContext& context, const std::initializer_list<ISGNode*>& children={});
+        SGRenderNode(SGContext& context);
         virtual ~SGRenderNode() override;
 
         // ISGNode interface

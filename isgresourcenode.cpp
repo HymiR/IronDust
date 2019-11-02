@@ -17,8 +17,21 @@
 
 namespace cg
 {
+    // TODO shouldn't this class also unrecord it selve on destruction?
     ISGResourceNode::ISGResourceNode(SGContext& context, const std::initializer_list<ISGNode*>& children)
-        :base(children)
+        : base(children)
+    {
+        context.scene.record(this);
+    }
+
+    ISGResourceNode::ISGResourceNode(SGContext& context, ISGNode* child)
+        : base(child)
+    {
+        context.scene.record(this);
+    }
+
+    ISGResourceNode::ISGResourceNode(SGContext& context)
+        : base()
     {
         context.scene.record(this);
     }

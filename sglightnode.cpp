@@ -17,8 +17,17 @@
 
 namespace cg
 {
-    SGLightNode::SGLightNode(glm::vec3 position, const std::initializer_list<cg::ISGNode*>& children)
-        : base(/*glm::mat4(1), */children) // if it shall be a transformnode...
+    SGLightNode::SGLightNode(ISGNode* child, glm::vec3 position)
+        : base(child)
+        , ambient(0.5, 0.5, 0.5, 1)
+        , diffuse(1, 1, 1, 1)
+        , specular(1, 1, 1, 1)
+        , position(position)
+    {
+    }
+
+    SGLightNode::SGLightNode(glm::vec3 position)
+        : base()
         , ambient(0.5, 0.5, 0.5, 1)
         , diffuse(1, 1, 1, 1)
         , specular(1, 1, 1, 1)

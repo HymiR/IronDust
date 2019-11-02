@@ -38,8 +38,8 @@ template<typename T, uint S> std::size_t bytesof()
 
 namespace cg
 {
-    SGRenderNode::SGRenderNode(SGContext& context, const std::initializer_list<ISGNode*>& children)
-        : base(context, children)
+    SGRenderNode::SGRenderNode(SGContext& context)
+        : base(context)
         , id_vertex(0)
         , id_texture(0)
         , id_color(0)

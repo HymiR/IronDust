@@ -20,25 +20,27 @@
 
 namespace cg
 {
-	namespace oogl
-	{
-		class GLSLProgram;
-	}
+    namespace oogl
+    {
+        class GLSLProgram;
+    }
 
 
-	class SGShaderNode : public SGNode
-	{
-		typedef SGNode base;
+    class SGShaderNode : public SGNode
+    {
+        typedef SGNode base;
 
-	public:
-		SGShaderNode(oogl::GLSLProgram* program, const std::initializer_list<ISGNode*>& children={});
+    public:
+        SGShaderNode(oogl::GLSLProgram* program, const std::initializer_list<ISGNode*>& children);
+        SGShaderNode(oogl::GLSLProgram* program, ISGNode* child);
+        SGShaderNode(oogl::GLSLProgram* program);
 
-		virtual ~SGShaderNode() override;
-		virtual void render(SGContext& context) override;
+        virtual ~SGShaderNode() override;
+        virtual void render(SGContext& context) override;
 
-	private:
-		oogl::GLSLProgram* program;
-	};
+    private:
+        oogl::GLSLProgram* program;
+    };
 }
 
 #endif // SGSHADERNODE_HPP

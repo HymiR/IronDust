@@ -25,6 +25,18 @@ namespace cg
     {
     }
 
+    SGShaderNode::SGShaderNode(oogl::GLSLProgram* program, ISGNode* child)
+        : base(child)
+        , program(program)
+    {
+    }
+
+    SGShaderNode::SGShaderNode(oogl::GLSLProgram* program)
+        : base()
+        , program(program)
+    {
+    }
+
     SGShaderNode::~SGShaderNode()
     {
         delete program;

@@ -32,8 +32,13 @@ namespace cg
         typedef ISGResourceNode base;
 
     public:
-        SGTextureNode(SGContext& context, oogl::Image* image, bool repeat=false, const std::initializer_list<ISGNode*>& children = {});
-        SGTextureNode(SGContext& context, const std::string& path, bool repeat=false, const std::initializer_list<ISGNode*>& children = {});
+        SGTextureNode(SGContext& context, oogl::Image* image, const std::initializer_list<ISGNode*>& children, bool repeat=false);
+        SGTextureNode(SGContext& context, const std::string& path, const std::initializer_list<ISGNode*>& children, bool repeat=false);
+        SGTextureNode(SGContext& context, oogl::Image* image, ISGNode* child, bool repeat=false);
+        SGTextureNode(SGContext& context, const std::string& path, ISGNode* child, bool repeat=false);
+        SGTextureNode(SGContext& context, oogl::Image* image, bool repeat=false);
+        SGTextureNode(SGContext& context, const std::string& path, bool repeat=false);
+
         virtual ~SGTextureNode() override;
 
         virtual bool init(SGContext& context) override;

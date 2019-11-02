@@ -27,7 +27,7 @@ using namespace cg::oogl;
 
 namespace cg
 {
-    SGTextureNode::SGTextureNode(SGContext& context, oogl::Image* image, bool repeat, const std::initializer_list<ISGNode*>& children)
+    SGTextureNode::SGTextureNode(SGContext& context, oogl::Image* image, const std::initializer_list<ISGNode*>& children, bool repeat)
         : base(context, children)
         , image(image)
         , repeat(repeat)
@@ -36,7 +36,7 @@ namespace cg
     {
     }
 
-    SGTextureNode::SGTextureNode(SGContext& context, const std::string& path, bool repeat, const std::initializer_list<ISGNode*>& children)
+    SGTextureNode::SGTextureNode(SGContext& context, const std::string& path, const std::initializer_list<ISGNode*>& children, bool repeat)
         : base(context, children)
         , image(Image::load(path))
         , repeat(repeat)
@@ -44,6 +44,43 @@ namespace cg
         , unit(0)
     {
     }
+
+    SGTextureNode::SGTextureNode(SGContext& context, Image* image, ISGNode* child, bool repeat)
+        : base(context, child)
+        , image(image)
+        , repeat(repeat)
+        , id(0)
+        , unit(0)
+    {
+    }
+
+    SGTextureNode::SGTextureNode(SGContext& context, const std::string& path, ISGNode* child, bool repeat)
+        : base(context, child)
+        , image(Image::load(path))
+        , repeat(repeat)
+        , id(0)
+        , unit(0)
+    {
+    }
+
+    SGTextureNode::SGTextureNode(SGContext& context, Image* image, bool repeat)
+        : base(context)
+        , image(image)
+        , repeat(repeat)
+        , id(0)
+        , unit(0)
+    {
+    }
+
+    SGTextureNode::SGTextureNode(SGContext& context, const std::string& path, bool repeat)
+        : base(context)
+        , image(Image::load(path))
+        , repeat(repeat)
+        , id(0)
+        , unit(0)
+    {
+    }
+
 
     SGTextureNode::~SGTextureNode()
     {

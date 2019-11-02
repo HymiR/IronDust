@@ -92,7 +92,7 @@ namespace cg
     {
         if(single && children) {
             reinterpret_cast<ISGNode*>(children)->render(context);
-        } else {
+        } else if(children) {
             for (ISGNode* child : *reinterpret_cast<std::vector<ISGNode*>*>(children)) {
                 child->render(context);
             }

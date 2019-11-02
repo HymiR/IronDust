@@ -25,7 +25,9 @@ namespace cg
         typedef SGNode base;
 
     public:
-        SGMaterialNode(const std::initializer_list<ISGNode*>& children={});
+        SGMaterialNode(const std::initializer_list<ISGNode*>& children);
+        SGMaterialNode(ISGNode* child);
+        SGMaterialNode();
 
         // ISGNode interface
         virtual void render(SGContext& context) override;
