@@ -15,81 +15,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-cmake_minimum_required(VERSION 3.11)
-
+cmake_minimum_required(VERSION 3.13)
 project(irondust
 	LANGUAGES CXX
-	VERSION 0.1
+	VERSION 0.2.4
 )
 
-set(CMAKE_CXX_STANDARD 11)
+# includes definitions for building libirondust
+add_library(${PROJECT_NAME} SHARED "")
+add_subdirectory(irondust)
 
-# needed system libs
-find_package(libcg REQUIRED)
+# definitions for irondust app executable
+add_executable(${PROJECT_NAME}_app "")
+add_subdirectory(app)
 
-# needed system libs via pkgconfig
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
-
-
-include_directories(
-	${CMAKE_SOURCE_DIR}
-	${libcg_INCLUDE_DIRS}
-	${GLFW_INCLUDE_DIRS}
+# several pseudo targets for better maintaining other stuff within ide
+add_custom_target(shaders SOURCES
+	shaders/default.vsh
+	shaders/default.fsh
+	shaders/phong.vsh
+	shaders/phong.fsh
 )
 
-link_directories(BEFORE
-	${libcg_LIBRARY_DIRS}
-)
-
-set(SOURCES
-	geometry.cpp
-	geometry.hpp
-	irondust.cpp
-	isgelement.cpp
-	isgelement.hpp
-	isgnode.cpp
-	isgnode.hpp
-	isgresource.cpp
-	isgresource.hpp
-	isgresourcenode.cpp
-	isgresourcenode.hpp
-	sgmodel.cpp
-	sgmodel.hpp
-	sgconstants.hpp
-	sgcontext.cpp
-	sgcontext.hpp
-	sglightnode.cpp
-	sglightnode.hpp
-	sgmaterialnode.cpp
-	sgmaterialnode.hpp
-	sgnode.cpp
-	sgnode.hpp
-	sgrendernode.cpp
-	sgrendernode.hpp
-	sgscene.cpp
-	sgscene.hpp
-	sgshadernode.cpp
-	sgshadernode.hpp
-	sgtexturenode.cpp
-	sgtexturenode.hpp
-	sgtransformnode.cpp
-	sgtransformnode.hpp
-)
-
-set(SHADERS
-	default.vsh
-	default.fsh
-	phong.vsh
-	phong.fsh
-)
-
-add_executable(${PROJECT_NAME}
-	${SOURCES}
-	${SHADERS}
-)
-
-target_link_libraries(${PROJECT_NAME}
-	${GLFW_LIBRARIES}
-	${libcg_LIBRARIES}
+add_custom_target(misc SOURCES
+	README.md
+	bufferobject.cpp
+	bufferobject.hpp
 )
