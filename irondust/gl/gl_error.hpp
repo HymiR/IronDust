@@ -13,17 +13,18 @@
 #include <irondust/gl/glIncludes.hpp>
 
 
-#define LOG_GL_ERRORS()                                                          \
-    {                                                                            \
-        for(GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError()) { \
-            LOG_ERROR << "GL_ERROR: " << err << std::endl;       \
-        }                                                                        \
+#define LOG_GL_ERRORS()                                                                 \
+    {                                                                                   \
+        for(GLenum err = glGetError(); err != GL_NO_ERROR; err = glGetError()) {        \
+            LOG_ERROR << "GL_ERROR: " << irondust::gl::glErrorStr(err) << std::endl;    \
+        }                                                                               \
     }
 
 namespace irondust
 {
     namespace gl
     {
+        const char* glErrorStr(GLenum err);
         void dumpGLInfos();
     }
 }
