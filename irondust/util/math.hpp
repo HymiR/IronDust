@@ -1,5 +1,5 @@
 /**
- ** This file is part of the cg project.
+ ** This file is part of the irondust project.
  ** Copyright 2019 CyberViking Softwareschmiede GbR <leghissa@cyber-viking.com>.
  **
  ** This program is free software: you can redistribute it and/or modify
