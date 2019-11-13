@@ -18,9 +18,6 @@
 cmake_minimum_required(VERSION 3.13)
 target_sources(${PROJECT_NAME}
 PRIVATE
-	sg/isgelement.cpp
-	sg/isgnode.cpp
-	sg/isgresource.cpp
 	sg/isgresourcenode.cpp
 	sg/sgmodel.cpp
 	sg/sgcontext.cpp
