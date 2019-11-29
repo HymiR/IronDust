@@ -83,36 +83,39 @@ namespace irondust
             auto pid = context.program->getId();
 
             // do render stuff here
-            auto pos = glGetAttribLocation(pid, attrib::VERTEX.c_str());
-            assert(pos >= 0);
-            glEnableVertexAttribArray(pos);
+            auto pos_vertex = glGetAttribLocation(pid, attrib::VERTEX.c_str());
+            assert(pos_vertex >= 0);
+            glEnableVertexAttribArray(pos_vertex);
             glBindBuffer(GL_ARRAY_BUFFER, id_vertex);
-            glVertexAttribPointer(pos, grouping, GL_FLOAT, GL_FALSE, 0, nullptr);
+            glVertexAttribPointer(pos_vertex, grouping, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+            glm::int32 pos_texture = -1;
             if(id_texture != 0) {
-                auto pos = glGetAttribLocation(pid, attrib::TEXTURE.c_str());
-                if (pos >= 0) {
-                    glEnableVertexAttribArray(pos);
+                pos_texture = glGetAttribLocation(pid, attrib::TEXTURE.c_str());
+                if (pos_texture >= 0) {
+                    glEnableVertexAttribArray(pos_texture);
                     glBindBuffer(GL_ARRAY_BUFFER, id_texture);
-                    glVertexAttribPointer(pos, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+                    glVertexAttribPointer(pos_texture, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
                 }
             }
 
+            glm::int32 pos_color = -1;
             if(id_color != 0) {
-                auto pos = glGetAttribLocation(pid, attrib::COLOR.c_str());
-                if (pos >= 0) {
-                    glEnableVertexAttribArray(pos);
+                pos_color = glGetAttribLocation(pid, attrib::COLOR.c_str());
+                if (pos_color >= 0) {
+                    glEnableVertexAttribArray(pos_color);
                     glBindBuffer(GL_ARRAY_BUFFER, id_color);
-                    glVertexAttribPointer(pos, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+                    glVertexAttribPointer(pos_color, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
                 }
             }
 
+            glm::int32 pos_normal = -1;
             if(id_normal != 0) {
-                auto pos = glGetAttribLocation(pid, attrib::NORMAL.c_str());
-                if (pos >= 0) {
-                    glEnableVertexAttribArray(pos);
+                pos_normal = glGetAttribLocation(pid, attrib::NORMAL.c_str());
+                if (pos_normal >= 0) {
+                    glEnableVertexAttribArray(pos_normal);
                     glBindBuffer(GL_ARRAY_BUFFER, id_normal);
-                    glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+                    glVertexAttribPointer(pos_normal, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
                 }
             }
 
@@ -124,12 +127,10 @@ namespace irondust
                 glDrawArrays(GL_TRIANGLES, 0, GLsizei(items));
             }
 
-            glDisableVertexAttribArray(id_vertex);
-            glDisableVertexAttribArray(id_texture);
-            glDisableVertexAttribArray(id_color);
-            glDisableVertexAttribArray(id_normal);
-            glDisableVertexAttribArray(id_index);
-
+            if(pos_texture >= 0) glDisableVertexAttribArray(pos_texture);
+            if(pos_color >= 0) glDisableVertexAttribArray(pos_color);
+            if(pos_normal >= 0) glDisableVertexAttribArray(pos_normal);
+            if(pos_vertex >= 0) glDisableVertexAttribArray(pos_vertex);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
