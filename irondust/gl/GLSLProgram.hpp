@@ -16,6 +16,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <string>
 
 
 namespace irondust
@@ -28,7 +29,7 @@ namespace irondust
         class GLSLAttrib
         {
         public:
-            GLSLAttrib(const std::string name, const GLint id);
+            GLSLAttrib(const std::string& name, const GLint id);
 
             operator bool();
 

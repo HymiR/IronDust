@@ -178,7 +178,7 @@ namespace irondust
         }
 
 
-        GLSLAttrib::GLSLAttrib(const std::string name, const GLint id)
+        GLSLAttrib::GLSLAttrib(const std::string& name, const GLint id)
             : id(id)
             , name(name)
         {
