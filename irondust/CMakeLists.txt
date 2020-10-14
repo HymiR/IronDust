@@ -18,54 +18,57 @@
 cmake_minimum_required(VERSION 3.13)
 target_sources(${PROJECT_NAME}
 PRIVATE
-	sg/isgresourcenode.cpp
-	sg/sgmodel.cpp
-	sg/sgcontext.cpp
-	sg/sglightnode.cpp
-	sg/sgmaterialnode.cpp
-	sg/sgnode.cpp
-	sg/sgrendernode.cpp
-	sg/sgscene.cpp
-	sg/sgshadernode.cpp
-	sg/sgtexturenode.cpp
-	sg/sgtransformnode.cpp
-	gl/Image.cpp
-	gl/GLSLShader.cpp
-	gl/GLSLProgram.cpp
-	gl/Texture.cpp
-	gl/Texture2D.cpp
-	gl/Texture3D.cpp
-	gl/gl_error.cpp
-	util/math.cpp
+    sg/isgresourcenode.cpp
+    sg/sgmodel.cpp
+    sg/sgcontext.cpp
+    sg/sglightnode.cpp
+    sg/sgmaterialnode.cpp
+    sg/sgnode.cpp
+    sg/sgrendernode.cpp
+    sg/sgscene.cpp
+    sg/sgshadernode.cpp
+    sg/sgtexturenode.cpp
+    sg/sgtransformnode.cpp
+    gl/gloption.cpp
+    gl/Image.cpp
+    gl/GLSLShader.cpp
+    gl/GLSLProgram.cpp
+    gl/Texture.cpp
+    gl/Texture2D.cpp
+    gl/Texture3D.cpp
+    gl/gl_error.cpp
+    util/math.cpp
 PUBLIC
-	sg/isgelement.hpp
-	sg/isgnode.hpp
-	sg/isgresource.hpp
-	sg/isgresourcenode.hpp
-	sg/sgmodel.hpp
-	sg/sgconstants.hpp
-	sg/sgcontext.hpp
-	sg/sglightnode.hpp
-	sg/sgmaterialnode.hpp
-	sg/sgnode.hpp
-	sg/sgrendernode.hpp
-	sg/sgscene.hpp
-	sg/sgshadernode.hpp
-	sg/sgtexturenode.hpp
-	sg/sgtransformnode.hpp
-	gl/Image.hpp
-	gl/GLSLShader.hpp
-	gl/GLSLProgram.hpp
-	gl/Texture.hpp
-	gl/Texture2D.hpp
-	gl/Texture3D.hpp
-	gl/glIncludes.hpp
-	gl/glfwIncludes.hpp
-	gl/gl_error.hpp
-	util/math.hpp
-	util/log.hpp
-	util/loglevels.hpp
-	util/glm_ostream.hpp
+    sg/isgelement.hpp
+    sg/isgnode.hpp
+    sg/isgresource.hpp
+    sg/isgresourcenode.hpp
+    sg/sgmodel.hpp
+    sg/sgconstants.hpp
+    sg/sgcontext.hpp
+    sg/sglightnode.hpp
+    sg/sgmaterialnode.hpp
+    sg/sgnode.hpp
+    sg/sgrendernode.hpp
+    sg/sgscene.hpp
+    sg/sgshadernode.hpp
+    sg/sgtexturenode.hpp
+    sg/sgtransformnode.hpp
+    gl/iglbindable.hpp
+    gl/gloption.hpp
+    gl/Image.hpp
+    gl/GLSLShader.hpp
+    gl/GLSLProgram.hpp
+    gl/Texture.hpp
+    gl/Texture2D.hpp
+    gl/Texture3D.hpp
+    gl/glIncludes.hpp
+    gl/glfwIncludes.hpp
+    gl/gl_error.hpp
+    util/math.hpp
+    util/log.hpp
+    util/loglevels.hpp
+    util/glm_ostream.hpp
 )
 
 # determine some libraries (the ones which cmake has a find_module for) to link against
@@ -79,12 +82,12 @@ find_package(glm 0.9.7 REQUIRED) # header only
 # link external libraries. this has to be done for classic dymamic libs as well as heaser-only libs.
 # lib paths and include paths were propagated transitively by useng the target_* functions.
 target_link_libraries(${PROJECT_NAME} PUBLIC
-	${OPENGL_opengl_LIBRARY}
-	${GLEW_LIBRARIES}
-	${IL_LIBRARIES}
-	${ILU_LIBRARIES}
-	${ILUT_LIBRARIES}
-	glm
+    ${OPENGL_opengl_LIBRARY}
+    ${GLEW_LIBRARIES}
+    ${IL_LIBRARIES}
+    ${ILU_LIBRARIES}
+    ${ILUT_LIBRARIES}
+    glm
 )
 
 # define (only!) local include dirs.

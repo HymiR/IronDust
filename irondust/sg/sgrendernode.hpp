@@ -30,6 +30,11 @@
 
 namespace irondust
 {
+    namespace gl
+    {
+        class IGlBindable;
+    }
+
     namespace sg
     {
         class SGRenderNode : public ISGResourceNode
@@ -43,6 +48,7 @@ namespace irondust
             std::vector<glm::f32> color;
             std::vector<glm::f32> normal;
             std::vector<glm::uint> index; // uint and u32 may not be the same!
+            std::vector<gl::IGlBindable*> options; // experimental gloptions.
 
             SGRenderNode(SGContext& context);
             virtual ~SGRenderNode() override;

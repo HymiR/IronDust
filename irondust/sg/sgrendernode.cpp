@@ -22,14 +22,13 @@
 #include <irondust/sg/sgconstants.hpp>
 
 #include <irondust/gl/glIncludes.hpp>
+#include <irondust/gl/iglbindable.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
 // debugging stuff
 #include <cassert>
-#define LOG_LEVEL LOG_LEVEL_DEBUG
-#include <irondust/util/log.hpp>
 
 
 template<typename T> std::size_t bytesof(const std::vector<T>& v)
@@ -66,11 +65,14 @@ namespace irondust
             glDeleteBuffers(1, &id_color);
             glDeleteBuffers(1, &id_normal);
             glDeleteBuffers(1, &id_index);
+            for(auto* opt : options) delete opt;
         }
 
         void SGRenderNode::render(SGContext& context)
         {
             assert(context.program && (id_vertex != 0));
+            for(auto* opt : options) opt->bind();
+
             glm::mat4 mvMat = context.view_matrix * context.scene_matrix;
             glm::mat3 normalMat = glm::inverseTranspose(glm::mat3(mvMat));
             auto& program = *context.program;
@@ -135,6 +137,8 @@ namespace irondust
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
             base::render(context);
+
+            for(auto* opt : options) opt->unbind();
         }
 
         bool SGRenderNode::init(SGContext& context)
@@ -184,5 +188,3 @@ namespace irondust
         }
     }
 }
-
-

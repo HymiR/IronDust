@@ -17,12 +17,11 @@
  **/
 
 
-#define LOG_LEVEL LOG_LEVEL_DEBUG
-
 #include <irondust/gl/glfwIncludes.hpp>
 #include <irondust/gl/GLSLShader.hpp>
 #include <irondust/gl/GLSLProgram.hpp>
 #include <irondust/gl/gl_error.hpp>
+#include <irondust/gl/gloption.hpp>
 
 #include <irondust/util/log.hpp>
 #include <irondust/util/math.hpp>
@@ -33,6 +32,7 @@
 #include <irondust/sg/sgshadernode.hpp>
 #include <irondust/sg/sgmaterialnode.hpp>
 #include <irondust/sg/sglightnode.hpp>
+#include <irondust/sg/sgrendernode.hpp>
 #include <irondust/sg/sgtransformnode.hpp>
 #include <irondust/sg/sgtexturenode.hpp>
 #include <irondust/sg/sgnode.hpp>
@@ -145,10 +145,13 @@ void initialise()
         exit(EXIT_FAILURE);
     }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_SAMPLES, 8);
     // for older gpus, e.g. older intel
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
     // Open a window and create its OpenGL context
     window = glfwCreateWindow(size.x, size.y, "Iron Dust", nullptr, nullptr);
@@ -182,7 +185,7 @@ void initialise()
     //glfwSwapInterval(1); // default is 0 -- on faster machines this could lead to tearing
 
     // Standard background color
-    glClearColor(0.2f, 0.2f, 0.3f, 1.f);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
 
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
@@ -191,10 +194,6 @@ void initialise()
     // Enable depth test (accept if it closer to the camera than the former one)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
-    // enable alpha blend
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     LOG_INFO << "-----------------------------------------------------------------------" << std::endl;
     LOG_INFO << "OpenGL Version \t" << glGetString(GL_VERSION) << std::endl;
@@ -240,13 +239,18 @@ void load()
         m.shininess = 0.1f;
     }
 
-    // add a sphere to root
-    root.append(new SGMaterialNode())
-            .append(SGModel::createSphere(scene->getContext(), 1));
+    { // add a sphere to root
+        auto* rn = (SGRenderNode*)SGModel::createSphere(scene->getContext(), 1);
+        rn->options.push_back(new GlCullOption(false));
+        rn->options.push_back(new GlPolyMode(PolyMode::Point, PolyMode::Line));
+        root.append(new SGMaterialNode())
+                .append(rn);
+    }
 
-    // add a cube to root
-    root.append(new SGTransformNode(glm::translate(glm::mat4(1.), {-1.5, 0.5, 0.5})))
-            .append(SGModel::createCube(scene->getContext(), {.5, .5, .5}));
+    { // add a cube to root
+        root.append(new SGTransformNode(glm::translate(glm::mat4(1.), {-1.5, 0.5, 0.5})))
+                .append(SGModel::createCube(scene->getContext(), {.5, .5, .5}));
+    }
 
     { // yet another cube
         auto* m = new SGMaterialNode();
@@ -269,6 +273,22 @@ void load()
                 .append(new SGTextureNode(scene->getContext(), textures+"/wall1.jpg"))
                 .append(m)
                 .append(SGModel::createPyramid(scene->getContext(), 2.2f, 1.4f));
+    }
+
+    { // add a billboard to root
+        auto& mn = dynamic_cast<SGMaterialNode&>(root.append(new SGMaterialNode()));
+        mn.diffuse = {.9f, .9f, .9f, 1.f};
+        mn.ambient = {.6f, .6f, .6f, 1.f};
+        mn.specular = {.2f, .2f, .2f, 1.f};
+        mn.shininess = 3.f;
+        auto* rn = (SGRenderNode*)SGModel::createQuad(scene->getContext());
+        rn->options.push_back(new GlBlendOption());
+        rn->options.push_back(new GlBlendOption());
+        mn.append(new SGTransformNode(
+                    glm::translate(glm::mat4(1.), {-1.5, 0.5, 1.5}) *
+                    glm::rotate(glm::mat4(1.), glm::radians(180.f), {0., 0., 1.})))
+                .append(new SGTextureNode(scene->getContext(), textures+"/flower.png"))
+                .append(rn);
     }
 
     scene->init();
@@ -378,7 +398,6 @@ void unload()
 }
 
 
-
 static void close_callback(GLFWwindow* window)
 {
     static_cast<void>(window);
@@ -388,7 +407,7 @@ static void close_callback(GLFWwindow* window)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    static bool wireframe = false;
+    static_cast<void>(scancode);
 
     if(mods & GLFW_MOD_SHIFT) speed = 15.f;
     else speed = 3.f;
@@ -408,14 +427,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     case GLFW_KEY_ESCAPE:
         if(action == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-        break;
-        // GLFW_KEY_LEFT_SHIFT
-    case GLFW_KEY_M:
-        if(action == GLFW_PRESS) {
-            wireframe = !wireframe;
-            if(wireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
         break;
     default:
         LOG_DEBUG << "KEY Action: key=" << key
