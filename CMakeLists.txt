@@ -17,9 +17,12 @@
 
 cmake_minimum_required(VERSION 3.13)
 project(irondust
-	LANGUAGES CXX
-	VERSION 0.2.4
+    LANGUAGES CXX
+    VERSION 0.2.4
 )
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(options)
 
 # includes definitions for building libirondust
 add_library(${PROJECT_NAME} SHARED "")
@@ -31,14 +34,14 @@ add_subdirectory(app)
 
 # several pseudo targets for better maintaining other stuff within ide
 add_custom_target(shaders SOURCES
-	shaders/default.vsh
-	shaders/default.fsh
-	shaders/phong.vsh
-	shaders/phong.fsh
+    shaders/default.vsh
+    shaders/default.fsh
+    shaders/phong.vsh
+    shaders/phong.fsh
 )
 
 add_custom_target(misc SOURCES
-	README.md
-	bufferobject.cpp
-	bufferobject.hpp
+    README.md
+    bufferobject.cpp
+    bufferobject.hpp
 )
