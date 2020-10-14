@@ -81,35 +81,35 @@ bool use(int option)
 
 vec4 pointLight(Light light, Material material, vec3 lightVec, vec3 normalVec, vec3 eyeVec)
 {
-	// normalise, just to be sure
-	lightVec = normalize(lightVec);
-	normalVec = normalize(normalVec);
-	eyeVec = normalize(eyeVec);
-
-	// compute diffuse term
-	float diffuse = max(dot(normalVec, lightVec), 0.0);
-
-	// compute specular term
-	vec3 reflectVec = reflect(-lightVec, normalVec);
-	float spec = pow(max(dot(reflectVec, eyeVec), 0.0), material.shininess);
-
 	// calculate texture colors with lighting
+    float alpha = 1.0;
 	if (use(TEX)) {
 		vec4 textureColor = texture2D(u_tex_object, v_texCoord);
+        alpha = textureColor.a;
+        if(alpha == 0.0) discard;
 		material.ambient *= textureColor;
 		material.diffuse *= textureColor;
+        material.emission.a *= alpha;
 	}
 
+    // compute ambient term
 	vec4 c_amb = clamp(light.ambient * material.ambient, 0.0, 1.0);
-	vec4 c_diff = clamp(diffuse * light.diffuse * material.diffuse, 0.0, 1.0);
-	vec4 c_spec = clamp(spec * light.specular * material.specular, 0.0, 1.0);
-	vec4 c_em = material.emission;
 
-	return c_amb + c_diff + c_spec + c_em;
+    // compute diffuse term
+    float diffuse = max(dot(normalVec, lightVec), 0.0);
+	vec4 c_diff = clamp(diffuse * light.diffuse * material.diffuse, 0.0, 1.0);
+
+    // compute specular term
+    vec3 reflectVec = reflect(-lightVec, normalVec);
+    float spec = pow(max(dot(reflectVec, eyeVec), 0.0), material.shininess);
+    vec4 c_spec = clamp(spec * light.specular * material.specular, 0.0, 1.0);
+    c_spec.a *= alpha;
+
+    return c_amb + c_diff + c_spec + material.emission;
 }
 
 
 void main(void)
 {
-	gl_FragColor = pointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec);
+    gl_FragColor = pointLight(u_light, u_material, v_lightVec, v_normalVec, v_eyeVec);
 }

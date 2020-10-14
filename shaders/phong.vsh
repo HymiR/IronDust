@@ -76,9 +76,9 @@ void main()
 	v_color = a_color;
 
 	vec4 eyePosition = u_modelview_mat * vec4(a_position, 1);
-	v_normalVec = u_normal_mat * a_normal;
-	v_eyeVec = -eyePosition.xyz;
-	v_lightVec = u_lightPos - eyePosition.xyz;
+    v_normalVec = normalize(u_normal_mat * a_normal);
+    v_eyeVec = normalize(-eyePosition.xyz);
+    v_lightVec = normalize(u_lightPos - eyePosition.xyz);
 
 
 	// apply texture transformation if specifyed by options:
