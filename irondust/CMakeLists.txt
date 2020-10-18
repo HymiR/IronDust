@@ -21,6 +21,7 @@ PRIVATE
     sg/isgresourcenode.cpp
     sg/sgmodel.cpp
     sg/sgcontext.cpp
+    sg/sgcubemapnode.cpp
     sg/sglightnode.cpp
     sg/sgmaterialnode.cpp
     sg/sgnode.cpp
@@ -46,6 +47,7 @@ PUBLIC
     sg/sgmodel.hpp
     sg/sgconstants.hpp
     sg/sgcontext.hpp
+    sg/sgcubemapnode.hpp
     sg/sglightnode.hpp
     sg/sgmaterialnode.hpp
     sg/sgnode.hpp

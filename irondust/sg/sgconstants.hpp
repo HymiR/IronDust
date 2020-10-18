@@ -46,7 +46,9 @@ namespace irondust
         namespace uniform
         {
             // options bitset parameter
-            const std::string OPTIONS {"u_options"};
+            const std::string OPTIONS_TEX {"u_options[0]"};
+            const std::string OPTIONS_TEX_ANIM {"u_options[1]"};
+            const std::string OPTIONS_REFLECT {"u_options[2]"};
 
             // material parameters
             const std::string MATERIAL_AMBIENT {"u_material.ambient"};
@@ -66,9 +68,11 @@ namespace irondust
             const std::string MAT_PROJ {"u_projection_mat"};
             const std::string MAT_MODELVIEW {"u_modelview_mat"};
             const std::string MAT_TEXTURE {"u_texture_mat"};
+            const std::string MAT_INVVIEW {"u_invview_mat"};
 
             // texture specific parameters
-            const std::string TEX_OBJECT {"u_tex_object"};
+            const std::string TEX_OBJ_2D {"u_tex2d"};
+            const std::string TEX_OBJ_CUBE {"u_texCube"};
         }
     }
 }

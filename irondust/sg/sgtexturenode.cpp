@@ -109,8 +109,7 @@ namespace irondust
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-            glTexImage2D(GL_TEXTURE_2D, 0,
-                        GL_RGBA,
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                         static_cast<GLsizei>(image->getWidth()),
                         static_cast<GLsizei>(image->getHeight()),
                         0,
@@ -125,13 +124,13 @@ namespace irondust
         void SGTextureNode::render(SGContext& context)
         {
             auto& program = *context.program;
-            program[uniform::OPTIONS + "[0]"] = true;
-            program[uniform::TEX_OBJECT] = unit;
+            program[uniform::OPTIONS_TEX] = true;
+            program[uniform::TEX_OBJ_2D] = unit;
 
             bind();
             base::render(context);
 
-            program[uniform::OPTIONS + "[0]"] = false;
+            program[uniform::OPTIONS_TEX] = false;
             unbind();
         }
 

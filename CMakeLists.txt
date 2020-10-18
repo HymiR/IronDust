@@ -38,6 +38,8 @@ add_custom_target(shaders SOURCES
     shaders/default.fsh
     shaders/phong.vsh
     shaders/phong.fsh
+    shaders/skybox.vsh
+    shaders/skybox.fsh
 )
 
 add_custom_target(misc SOURCES

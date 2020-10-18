@@ -25,11 +25,11 @@
  */
 struct Material
 {
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
-	vec4 emission;
-	float shininess;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    vec4 emission;
+    float shininess;
 };
 
 /**
@@ -37,9 +37,9 @@ struct Material
  */
 struct Light
 {
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
 };
 
 
@@ -59,7 +59,7 @@ uniform Light u_light;
 uniform bool u_options[16];
 
 //texture related variables
-uniform sampler2D u_tex_object;
+uniform sampler2D u_tex2d;
 
 
 // shader stage input
@@ -75,29 +75,29 @@ varying vec2 v_texCoord;
 
 bool use(int option)
 {
-	return u_options[option];
+    return u_options[option];
 }
 
 
 vec4 pointLight(Light light, Material material, vec3 lightVec, vec3 normalVec, vec3 eyeVec)
 {
-	// calculate texture colors with lighting
+    // calculate texture colors with lighting
     float alpha = 1.0;
-	if (use(TEX)) {
-		vec4 textureColor = texture2D(u_tex_object, v_texCoord);
+    if (use(TEX)) {
+        vec4 textureColor = texture2D(u_tex2d, v_texCoord);
         alpha = textureColor.a;
         if(alpha == 0.0) discard;
-		material.ambient *= textureColor;
-		material.diffuse *= textureColor;
+        material.ambient *= textureColor;
+        material.diffuse *= textureColor;
         material.emission.a *= alpha;
-	}
+    }
 
     // compute ambient term
-	vec4 c_amb = clamp(light.ambient * material.ambient, 0.0, 1.0);
+    vec4 c_amb = clamp(light.ambient * material.ambient, 0.0, 1.0);
 
     // compute diffuse term
     float diffuse = max(dot(normalVec, lightVec), 0.0);
-	vec4 c_diff = clamp(diffuse * light.diffuse * material.diffuse, 0.0, 1.0);
+    vec4 c_diff = clamp(diffuse * light.diffuse * material.diffuse, 0.0, 1.0);
 
     // compute specular term
     vec3 reflectVec = reflect(-lightVec, normalVec);

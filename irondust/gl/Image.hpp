@@ -12,6 +12,7 @@
 #include <glm/fwd.hpp>
 
 #include <string>
+#include <memory>
 
 
 namespace irondust
@@ -24,6 +25,7 @@ namespace irondust
             virtual ~Image();
 
             static Image* load(const std::string& fileName);
+            static std::shared_ptr<Image> shared(const std::string& file);
 
             glm::uint getWidth();
             glm::uint getHeight();
@@ -47,6 +49,7 @@ namespace irondust
             static void initDevIL();
         };
 
+        // TODO remove that...
         Image* loadImage(const std::string& fileName);
     }
 }

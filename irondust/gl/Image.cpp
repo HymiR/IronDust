@@ -66,6 +66,7 @@ namespace irondust
             }
 
             // If the image is flipped (i.e. upside-down and mirrored, flip it the right way up!)
+            // TODO check whether this flipping funcionality is what we want, especially for damn cube maps.
             ILinfo imageInfo;
             iluGetImageInfo(&imageInfo);
             if(imageInfo.Origin == IL_ORIGIN_UPPER_LEFT) {
@@ -73,6 +74,11 @@ namespace irondust
             }
 
             return new Image(fileName, img);
+        }
+
+        std::shared_ptr<Image> Image::shared(const std::string& file)
+        {
+            return std::shared_ptr<Image>(load(file));
         }
 
 
