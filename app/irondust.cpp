@@ -29,6 +29,7 @@
 // sgnode stuff
 #include <irondust/sg/sgscene.hpp>
 #include <irondust/sg/sgcontext.hpp>
+#include <irondust/sg/sgcubemapnode.hpp>
 #include <irondust/sg/sgshadernode.hpp>
 #include <irondust/sg/sgmaterialnode.hpp>
 #include <irondust/sg/sglightnode.hpp>
@@ -51,7 +52,7 @@ using namespace irondust::util;
 
 
 static GLFWwindow* window;
-static glm::ivec2 size(840, 480);
+static glm::ivec2 size(1024, 800);
 
 // Initial position vectors
 static glm::vec3 position = glm::vec3( -3, 2.0, 8.0 );
@@ -208,22 +209,51 @@ void load()
     LOG_INFO << "Loading scenes..." << std::endl;
     std::string models(resources+"models");
     std::string textures(resources+"textures");
+    std::string skyboxes(textures+"/skybox");
     std::string shaders(resources+"shaders");
 
     // construct scene graph
-    GLSLShader* vsh1 = GLSLShader::create(GLSLShader::VERTEX, shaders + "/default.vsh");
-    GLSLShader* fsh1 = GLSLShader::create(GLSLShader::FRAGMENT, shaders + "/default.fsh");
-    GLSLShader* vsh2 = GLSLShader::create(GLSLShader::VERTEX, shaders + "/phong.vsh");
-    GLSLShader* fsh2 = GLSLShader::create(GLSLShader::FRAGMENT, shaders + "/phong.fsh");
+    GLSLShader* vbase = GLSLShader::create(GLSLShader::VERTEX, shaders + "/default.vsh");
+    GLSLShader* fbase = GLSLShader::create(GLSLShader::FRAGMENT, shaders + "/default.fsh");
+    GLSLShader* vphong = GLSLShader::create(GLSLShader::VERTEX, shaders + "/phong.vsh");
+    GLSLShader* fphong = GLSLShader::create(GLSLShader::FRAGMENT, shaders + "/phong.fsh");
+    GLSLShader* vskybox = GLSLShader::create(GLSLShader::VERTEX, shaders+"/skybox.vsh");
+    GLSLShader* fskybox = GLSLShader::create(GLSLShader::FRAGMENT, shaders+"/skybox.fsh");
 
     // root node with phong shader
-    scene = new SGScene(new SGShaderNode(new GLSLProgram({vsh2, fsh2})));
+    scene = new SGScene(new SGShaderNode(new GLSLProgram({vphong, fphong})));
     ISGNode& root = scene->getRoot();
+
+    { // create skybox!
+        auto* cm = new SGCubemapNode(scene->getContext(), {
+                skyboxes+"/mars/right.png",
+                skyboxes+"/mars/left.png",
+                skyboxes+"/mars/front.png",
+                skyboxes+"/mars/back.png",
+                skyboxes+"/mars/up.png",
+                skyboxes+"/mars/down.png",
+//                skyboxes+"/forest/Skybox_RT.jpg",
+//                skyboxes+"/forest/Skybox_LT.jpg",
+//                skyboxes+"/forest/Skybox_FT.jpg",
+//                skyboxes+"/forest/Skybox_BK.jpg",
+//                skyboxes+"/forest/Skybox_UP.jpg",
+//                skyboxes+"/forest/Skybox_DN.jpg",
+        });
+        auto* sh = new SGShaderNode(new GLSLProgram({vskybox, fskybox}));
+        root.append(sh)
+                .append(cm)
+                .append(SGModel::createSphere(scene->getContext(), 50.0f, {8., 8.}));
+
+        auto& rn = (SGRenderNode&) sh->append(new SGCubemapNode(scene->getContext(), cm))
+                .append(new SGTransformNode(glm::translate(glm::mat4(1.), {3.5, 3.0, -5})))
+                .append(SGModel::createSphere(scene->getContext()));
+        rn.options.push_back(new GlCullOption(true, FaceMode::Front));
+    }
 
     // add light to root
     root.append(new SGTransformNode(glm::translate(glm::mat4(1.), {-0.5, 3., -4.})))
             .append(new SGLightNode())
-            .append(new SGShaderNode(new GLSLProgram({vsh1, fsh1})))
+            .append(new SGShaderNode(new GLSLProgram({vbase, fbase})))
             .append(SGModel::createCube(scene->getContext(), {.3, .3, .3}));
 
     { // add floor to root
